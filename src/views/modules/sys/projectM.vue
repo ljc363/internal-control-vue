@@ -2,7 +2,7 @@
   <div class="mod-projectM">
     <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
       <el-form-item>
-        <el-input v-model="dataForm.parentName" placeholder="项目名" clearable></el-input>
+        <el-input v-model="dataForm.projectName" placeholder="项目名" clearable></el-input>
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
@@ -23,7 +23,7 @@
         width="50">
       </el-table-column>
       <el-table-column
-        prop="userId"
+        prop="id"
         header-align="center"
         align="center"
         width="80"
@@ -62,15 +62,15 @@
         label="结束时间">
       </el-table-column>
       <el-table-column
-        prop="paecs"
+        prop="status"
         header-align="center"
         align="center"
         label="进度">
         <template slot-scope="scope">
           <el-tag v-if="scope.row.status === 0" size="small" type="danger">未开始</el-tag>
-          <el-tag v-if="scope.row.status === 1" size="small" type="danger">开始</el-tag>
+          <el-tag v-if="scope.row.status === 1" size="small" type="danger">开发中</el-tag>
           <el-tag v-if="scope.row.status === 2" size="small" type="danger">延期</el-tag>
-          <el-tag v-else size="small">完成</el-tag>
+          <el-tag v-if="scope.row.status === 3" size="small" type="danger">完成</el-tag>
         </template>
       </el-table-column>
       <el-table-column
@@ -80,8 +80,8 @@
         width="150"
         label="操作">
         <template slot-scope="scope">
-          <el-button v-if="isAuth('sys:user:update')" type="text" size="small" @click="addOrUpdateHandle(scope.row.userId)">修改</el-button>
-          <el-button v-if="isAuth('sys:user:delete')" type="text" size="small" @click="deleteHandle(scope.row.userId)">删除</el-button>
+          <el-button v-if="isAuth('sys:projectM:update')" type="text" size="small" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
+          <el-button v-if="isAuth('sys:projectM:delete')" type="text" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>

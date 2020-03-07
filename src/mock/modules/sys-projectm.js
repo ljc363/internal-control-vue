@@ -10,7 +10,7 @@ for (let i = 0; i < Math.floor(Math.random() * 10 + 1); i++) {
     'personInCharge': null,
     'startsTime': 'datetime',
     'endTime': 'datetime',
-    'paecs': 0,
+    'status': 0,
     'remark': null
   }))
 }
@@ -44,7 +44,7 @@ export function info () {
     data: {
       'msg': 'success',
       'code': 0,
-      'user': dataList[0]
+      'projectM': dataList[0]
     }
   }
 }
