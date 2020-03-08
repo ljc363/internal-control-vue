@@ -1,13 +1,13 @@
 <template>
-  <div class="mod-projectM">
+  <div class="mod-position">
     <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
       <el-form-item>
-        <el-input v-model="dataForm.projectName" placeholder="项目名" clearable></el-input>
+        <el-input v-model="dataForm.name" placeholder="岗位名" clearable></el-input>
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
-        <el-button v-if="isAuth('sys:projectM:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
-        <el-button v-if="isAuth('sys:projectM:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
+        <el-button v-if="isAuth('sys:position:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
+        <el-button v-if="isAuth('sys:position:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
       </el-form-item>
     </el-form>
     <el-table
@@ -23,55 +23,23 @@
         width="50">
       </el-table-column>
       <el-table-column
-        prop="id"
+        prop="positionId"
         header-align="center"
         align="center"
         width="80"
         label="ID">
       </el-table-column>
       <el-table-column
-        prop="projectName"
+        prop="name"
         header-align="center"
         align="center"
-        label="项目名称">
+        label="岗位名称">
       </el-table-column>
       <el-table-column
-        prop="number"
+        prop="orderNum"
         header-align="center"
         align="center"
-        label="项目编号">
-      </el-table-column>
-      <el-table-column
-        prop="personInCharge"
-        header-align="center"
-        align="center"
-        label="负责人">
-      </el-table-column>
-      <el-table-column
-        prop="startsTime"
-        header-align="center"
-        align="center"
-        width="180"
-        label="开始时间">
-      </el-table-column>
-      <el-table-column
-        prop="endTime"
-        header-align="center"
-        align="center"
-        width="180"
-        label="结束时间">
-      </el-table-column>
-      <el-table-column
-        prop="status"
-        header-align="center"
-        align="center"
-        label="进度">
-        <template slot-scope="scope">
-          <el-tag v-if="scope.row.status === 0" size="small" type="danger">未开始</el-tag>
-          <el-tag v-if="scope.row.status === 1" size="small" type="danger">开发中</el-tag>
-          <el-tag v-if="scope.row.status === 2" size="small" type="danger">延期</el-tag>
-          <el-tag v-if="scope.row.status === 3" size="small" type="danger">完成</el-tag>
-        </template>
+        label="排序">
       </el-table-column>
       <el-table-column
         fixed="right"
@@ -80,8 +48,8 @@
         width="150"
         label="操作">
         <template slot-scope="scope">
-          <el-button v-if="isAuth('sys:projectM:update')" type="text" size="small" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
-          <el-button v-if="isAuth('sys:projectM:delete')" type="text" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
+          <el-button v-if="isAuth('sys:position:update')" type="text" size="small" @click="addOrUpdateHandle(scope.row.positionId)">修改</el-button>
+          <el-button v-if="isAuth('sys:position:delete')" type="text" size="small" @click="deleteHandle(scope.row.positionId)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -100,12 +68,12 @@
 </template>
 
 <script>
-  import AddOrUpdate from './projectM-add-or-update'
+  import AddOrUpdate from './position-add-or-update'
   export default {
     data () {
       return {
         dataForm: {
-          projectName: ''
+          name: ''
         },
         dataList: [],
         pageIndex: 1,
@@ -127,12 +95,12 @@
       getDataList () {
         this.dataListLoading = true
         this.$http({
-          url: this.$http.adornUrl('/sys/projectM/list'),
+          url: this.$http.adornUrl('/sys/position/list'),
           method: 'get',
           params: this.$http.adornParams({
             'page': this.pageIndex,
             'limit': this.pageSize,
-            'projectName': this.dataForm.projectName
+            'name': this.dataForm.name
           })
         }).then(({data}) => {
           if (data && data.code === 0) {
@@ -169,18 +137,18 @@
       },
       // 删除
       deleteHandle (id) {
-        var userIds = id ? [id] : this.dataListSelections.map(item => {
-          return item.userId
+        var positionId = id ? [id] : this.dataListSelections.map(item => {
+          return item.positionId
         })
-        this.$confirm(`确定${id ? '删除' : '批量删除'}操作?`, '提示', {
+        this.$confirm(`确定${positionId ? '删除' : '批量删除'}操作?`, '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
           this.$http({
-            url: this.$http.adornUrl('/sys/projectM/delete'),
+            url: this.$http.adornUrl('/sys/position/delete'),
             method: 'post',
-            data: this.$http.adornData(userIds, false)
+            data: this.$http.adornData(positionId, false)
           }).then(({data}) => {
             if (data && data.code === 0) {
               this.$message({

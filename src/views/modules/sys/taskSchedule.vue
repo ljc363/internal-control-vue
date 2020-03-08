@@ -1,13 +1,14 @@
 <template>
-  <div class="mod-projectM">
+  <div class="mod-taskSchedule">
     <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
       <el-form-item>
-        <el-input v-model="dataForm.projectName" placeholder="项目名" clearable></el-input>
+        <el-input v-model="dataForm.projectName" placeholder="项目名称" clearable></el-input>
+        <el-input v-model="dataForm.taskName" placeholder="任务名称" clearable></el-input>
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
-        <el-button v-if="isAuth('sys:projectM:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
-        <el-button v-if="isAuth('sys:projectM:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
+        <el-button v-if="isAuth('sys:taskSchedule:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
+        <el-button v-if="isAuth('sys:taskSchedule:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
       </el-form-item>
     </el-form>
     <el-table
@@ -36,30 +37,44 @@
         label="项目名称">
       </el-table-column>
       <el-table-column
-        prop="number"
+        prop="taskName"
         header-align="center"
         align="center"
-        label="项目编号">
+        label="任务名称">
       </el-table-column>
       <el-table-column
-        prop="personInCharge"
+        prop="subTask"
         header-align="center"
         align="center"
-        label="负责人">
+        label="子任务">
       </el-table-column>
       <el-table-column
-        prop="startsTime"
+        prop="plannedStartTime"
         header-align="center"
         align="center"
         width="180"
-        label="开始时间">
+        label="计划开始时间">
       </el-table-column>
       <el-table-column
-        prop="endTime"
+        prop="plannedEndTime"
         header-align="center"
         align="center"
         width="180"
-        label="结束时间">
+        label="计划结束时间">
+      </el-table-column>
+      <el-table-column
+        prop="actualStartTime"
+        header-align="center"
+        align="center"
+        width="180"
+        label="实际开始时间">
+      </el-table-column>
+      <el-table-column
+        prop="actualEndTime"
+        header-align="center"
+        align="center"
+        width="180"
+        label="实际结束时间">
       </el-table-column>
       <el-table-column
         prop="status"
@@ -68,10 +83,23 @@
         label="进度">
         <template slot-scope="scope">
           <el-tag v-if="scope.row.status === 0" size="small" type="danger">未开始</el-tag>
-          <el-tag v-if="scope.row.status === 1" size="small" type="danger">开发中</el-tag>
-          <el-tag v-if="scope.row.status === 2" size="small" type="danger">延期</el-tag>
-          <el-tag v-if="scope.row.status === 3" size="small" type="danger">完成</el-tag>
+          <el-tag v-if="scope.row.status === 1" size="small" type="danger">进行中</el-tag>
+          <el-tag v-if="scope.row.status === 2" size="small" type="danger">完成</el-tag>
         </template>
+      </el-table-column>
+      <el-table-column
+        prop="personInCharge"
+        header-align="center"
+        align="center"
+        width="180"
+        label="负责人">
+      </el-table-column>
+      <el-table-column
+        prop="auditor"
+        header-align="center"
+        align="center"
+        width="180"
+        label="审核人">
       </el-table-column>
       <el-table-column
         fixed="right"
@@ -80,8 +108,8 @@
         width="150"
         label="操作">
         <template slot-scope="scope">
-          <el-button v-if="isAuth('sys:projectM:update')" type="text" size="small" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
-          <el-button v-if="isAuth('sys:projectM:delete')" type="text" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
+          <el-button v-if="isAuth('sys:taskSchedule:update')" type="text" size="small" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
+          <el-button v-if="isAuth('sys:taskSchedule:delete')" type="text" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -100,11 +128,12 @@
 </template>
 
 <script>
-  import AddOrUpdate from './projectM-add-or-update'
+  import AddOrUpdate from './taskSchedule-add-or-update'
   export default {
     data () {
       return {
         dataForm: {
+          taskName: '',
           projectName: ''
         },
         dataList: [],
@@ -127,11 +156,12 @@
       getDataList () {
         this.dataListLoading = true
         this.$http({
-          url: this.$http.adornUrl('/sys/projectM/list'),
+          url: this.$http.adornUrl('/sys/taskSchedule/list'),
           method: 'get',
           params: this.$http.adornParams({
             'page': this.pageIndex,
             'limit': this.pageSize,
+            'taskName': this.dataForm.taskName,
             'projectName': this.dataForm.projectName
           })
         }).then(({data}) => {
@@ -172,13 +202,13 @@
         var userIds = id ? [id] : this.dataListSelections.map(item => {
           return item.userId
         })
-        this.$confirm(`确定${id ? '删除' : '批量删除'}操作?`, '提示', {
+        this.$confirm(`确定进行${id ? '删除' : '批量删除'}操作?`, '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
           this.$http({
-            url: this.$http.adornUrl('/sys/projectM/delete'),
+            url: this.$http.adornUrl('/sys/taskSchedule/delete'),
             method: 'post',
             data: this.$http.adornData(userIds, false)
           }).then(({data}) => {

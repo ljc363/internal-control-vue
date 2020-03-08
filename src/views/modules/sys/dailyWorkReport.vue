@@ -1,13 +1,13 @@
 <template>
-  <div class="mod-projectM">
+  <div class="mod-dailyWorkReport">
     <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
       <el-form-item>
-        <el-input v-model="dataForm.projectName" placeholder="项目名" clearable></el-input>
+        <el-input v-model="dataForm.submitter" placeholder="提交人" clearable></el-input>
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
-        <el-button v-if="isAuth('sys:projectM:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
-        <el-button v-if="isAuth('sys:projectM:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
+        <el-button v-if="isAuth('sys:dailyWorkReport:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
+        <el-button v-if="isAuth('sys:dailyWorkReport:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
       </el-form-item>
     </el-form>
     <el-table
@@ -30,48 +30,44 @@
         label="ID">
       </el-table-column>
       <el-table-column
-        prop="projectName"
+        prop="workDoneToday"
         header-align="center"
         align="center"
-        label="项目名称">
+        label="本日完成的工作">
       </el-table-column>
       <el-table-column
-        prop="number"
+        prop="unfinishedWork"
         header-align="center"
         align="center"
-        label="项目编号">
+        label="本日未工作">
       </el-table-column>
       <el-table-column
-        prop="personInCharge"
-        header-align="center"
-        align="center"
-        label="负责人">
-      </el-table-column>
-      <el-table-column
-        prop="startsTime"
+        prop="coordinate"
         header-align="center"
         align="center"
         width="180"
-        label="开始时间">
+        label="需要协调的工作">
       </el-table-column>
       <el-table-column
-        prop="endTime"
+        prop="submissionTime"
         header-align="center"
         align="center"
         width="180"
-        label="结束时间">
+        label="提交时间">
       </el-table-column>
       <el-table-column
-        prop="status"
+        prop="submitter"
         header-align="center"
         align="center"
-        label="进度">
-        <template slot-scope="scope">
-          <el-tag v-if="scope.row.status === 0" size="small" type="danger">未开始</el-tag>
-          <el-tag v-if="scope.row.status === 1" size="small" type="danger">开发中</el-tag>
-          <el-tag v-if="scope.row.status === 2" size="small" type="danger">延期</el-tag>
-          <el-tag v-if="scope.row.status === 3" size="small" type="danger">完成</el-tag>
-        </template>
+        width="180"
+        label="提交人">
+      </el-table-column>
+      <el-table-column
+        prop="remarks"
+        header-align="center"
+        align="center"
+        width="180"
+        label="备注">
       </el-table-column>
       <el-table-column
         fixed="right"
@@ -80,8 +76,8 @@
         width="150"
         label="操作">
         <template slot-scope="scope">
-          <el-button v-if="isAuth('sys:projectM:update')" type="text" size="small" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
-          <el-button v-if="isAuth('sys:projectM:delete')" type="text" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
+          <el-button v-if="isAuth('sys:dailyWorkReport:update')" type="text" size="small" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
+          <el-button v-if="isAuth('sys:dailyWorkReport:delete')" type="text" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -100,12 +96,12 @@
 </template>
 
 <script>
-  import AddOrUpdate from './projectM-add-or-update'
+  import AddOrUpdate from './dailyWorkReport-add-or-update'
   export default {
     data () {
       return {
         dataForm: {
-          projectName: ''
+          submitter: ''
         },
         dataList: [],
         pageIndex: 1,
@@ -127,12 +123,12 @@
       getDataList () {
         this.dataListLoading = true
         this.$http({
-          url: this.$http.adornUrl('/sys/projectM/list'),
+          url: this.$http.adornUrl('/sys/dailyWorkReport/list'),
           method: 'get',
           params: this.$http.adornParams({
             'page': this.pageIndex,
             'limit': this.pageSize,
-            'projectName': this.dataForm.projectName
+            'submitter': this.dataForm.submitter
           })
         }).then(({data}) => {
           if (data && data.code === 0) {
@@ -172,13 +168,13 @@
         var userIds = id ? [id] : this.dataListSelections.map(item => {
           return item.userId
         })
-        this.$confirm(`确定${id ? '删除' : '批量删除'}操作?`, '提示', {
+        this.$confirm(`确定进行${id ? '删除' : '批量删除'}操作?`, '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
           this.$http({
-            url: this.$http.adornUrl('/sys/projectM/delete'),
+            url: this.$http.adornUrl('/sys/dailyWorkReport/delete'),
             method: 'post',
             data: this.$http.adornData(userIds, false)
           }).then(({data}) => {
@@ -200,3 +196,4 @@
     }
   }
 </script>
+

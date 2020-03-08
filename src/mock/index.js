@@ -8,6 +8,11 @@ import * as sysMenu from './modules/sys-menu'
 import * as sysRole from './modules/sys-role'
 import * as sysUser from './modules/sys-user'
 import * as sysProjectM from './modules/sys-projectm'
+import * as taskSchedule from './modules/sys-taskSchedule'
+import * as weeklyWorkReport from './modules/sys-weeklyWorkReport'
+import * as dailyWorkReport from './modules/sys-dailyWorkReport'
+import * as position from './modules/sys-position'
+
 // tips
 // 1. 开启/关闭[业务模块]拦截, 通过调用fnCreate方法[isOpen参数]设置.
 // 2. 开启/关闭[业务模块中某个请求]拦截, 通过函数返回对象中的[isOpen属性]设置.
@@ -20,6 +25,10 @@ fnCreate(sysMenu, false)
 fnCreate(sysRole, false)
 fnCreate(sysUser, false)
 fnCreate(sysProjectM, false)
+fnCreate(taskSchedule, false)
+fnCreate(weeklyWorkReport, false)
+fnCreate(dailyWorkReport, false)
+fnCreate(position, false)
 /**
  * 创建mock模拟数据
  * @param {*} mod 模块
